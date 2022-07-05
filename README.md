@@ -9,15 +9,15 @@ This installation guide is for version 1.13.7
 	cd go-http-file-server && \
 	git switch -c v1.13.7-go1.9to1.15
 	```
-2. Build application in docker contianer(Golang compilation environment)
+2. Build application in docker contianer(Golang compilation environment)<br>
 	2.1 Assume you have installed docker engine, type below command to build application
 	```bash
 	./build/build-all-by-docker.sh
 	```
-3. Modify the dockerfile(build/build-docker-image-dockerfile) which used to create docker image of go-http-file-server
+3. Modify the dockerfile(build/build-docker-image-dockerfile) which used to create docker image of go-http-file-server<br>
 	3.1 Due to permission issue, I add new account 'dms'(Administrator, UID/GID is 1000/1000) and change default user from 'nobody' to 'dms'<br>
-	3.2 For flexibility and easy to configure file server, I add parameter '--config' to startup command
-	3.3 I have docker image of alpine v3.15 in locally, so I use it for file server.
+	3.2 For flexibility and easy to configure file server, I add parameter '--config' to startup command<br>
+	3.3 I have docker image of alpine v3.15 in locally, so I use it for file server.<br>
 	`WAS:`
 	```dockerfile
 	FROM alpine
@@ -50,8 +50,8 @@ This installation guide is for version 1.13.7
 			"--listen-tls", "8443", "-c", "/etc/server.crt", "-k", "/etc/server.key", "-r", "/var/ghfs/" \
 	]
 	```
-4. Create docker image
-	4.1 Modify script 'build/build-docker-image.sh', due to I don't want to use two tags for same docker image.
+4. Create docker image<br>
+	4.1 Modify script 'build/build-docker-image.sh', due to I don't want to use two tags for same docker image.<br>
 	`WAS:`
 	```bash
 	docker build -t "$TAG_PREFIX:latest" -t "$TAG_PREFIX:$VERSION" -f ./build-docker-image-dockerfile ../
@@ -60,7 +60,7 @@ This installation guide is for version 1.13.7
 	```bash
 	docker build -t "$TAG_PREFIX:$VERSION" -f ./build-docker-image-dockerfile ../
 	```
-	4.2 add lable 'stage' in dockerfile(build/build-docker-image-dockerfile) that can help to identify intermediate image.
+	4.2 add lable 'stage' in dockerfile(build/build-docker-image-dockerfile) that can help to identify intermediate image.<br>
 	`WAS:`
 	```dockerfile
 	FROM golang AS builder
@@ -88,7 +88,7 @@ This installation guide is for version 1.13.7
 	```bash
 	./build/build-docker-image.sh
 	```
-5. Start container
+5. Start container<br>
 	5.1 To decide location of your configuration file, certificate files and root directory of file server
 	|In container|In host side|Description|
 	|-|-|-|
@@ -97,7 +97,8 @@ This installation guide is for version 1.13.7
 	|/etc/ghfs.conf|/home/dockerContainer/httpFileServer/config/fileServer.conf|configuration file|
 	|/etc/server.crt|/home/dockerContainer/httpFileServer/config/server.crt|certificate file for HTTPS protocol|
 	|/etc/server.key|/home/dockerContainer/httpFileServer/config/server.key|certificate file for HTTPS protocol|
-	5.2 To generate certificate file
+
+	5.2 To generate certificate file<br>
 	Refer to <https://docs.microsoft.com/zh-tw/azure/application-gateway/self-signed-certificates#create-a-root-ca-certificate>
 	```bash
 	openssl ecparam -genkey -name prime256v1 -out ca.key && \
@@ -121,8 +122,8 @@ This installation guide is for version 1.13.7
 	CONFIG_FILE=fileServer.conf; \
 	echo -e "--root /var/ghfs\n--default-sort /n\n--upload-dir /var/ghfs/upload/\n--mkdir-dir /var/ghfs/upload/" > $SERVER_CONFIG_DIR/$CONFIG_FILE
 	```
-	5.4 Start container
-	`HTTPS enabled:`
+	5.4 Start container<br>
+	`with HTTPS:`
 	```bash
 	FILE_SERVER_ROOT=/home/dockerContainer/httpFileServer; \
 	docker run -itd --name httpFileServer --restart always -p 80:8080 -p 443:8443 \
@@ -134,7 +135,7 @@ This installation guide is for version 1.13.7
 	-v /etc/timezone:/etc/timezone:ro \
 	mjpclab/ghfs:1.13.7
 	```
-	`HTTPS disabled:`
+	`without HTTPS:`
 	```bash
 	FILE_SERVER_ROOT=/home/dockerContainer/httpFileServer; \
 	docker run -itd --name httpFileServer --restart always -p 80:8080 \
@@ -144,7 +145,7 @@ This installation guide is for version 1.13.7
 	-v /etc/timezone:/etc/timezone:ro \
 	mjpclab/ghfs:1.13.7
 	```
-6. To remove intermediate files
+6. To remove intermediate files<br>
 	I don't need the docker image of golang, so remove it.
 	```bash
 	docker image prune --filter label=stage=builderIntermediateImg && \
